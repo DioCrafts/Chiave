@@ -1,0 +1,26 @@
+# auth-service-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: auth-service
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: auth-service
+  template:
+    metadata:
+      labels:
+        app: auth-service
+    spec:
+      containers:
+        - name: auth-service
+          image: auth-service:latest
+          ports:
+            - containerPort: 8081
+          env:
+            - name: SERVER_ADDR
+              value: "0.0.0.0:8081"
+            - name: JWT_SECRET
+              value: "your_jwt_secret_key"
+
