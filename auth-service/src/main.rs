@@ -14,7 +14,7 @@ async fn main() -> std::io::Result<()> {
     HttpServer::new(move || {
         App::new()
             .service(login::login_handler)
-            .service(token::refresh_token)
+            .service(token::refresh_token_handler) // Cambiado a refresh_token_handler
             .service(oauth::oauth_login)
     })
     .bind(config.server_addr)?

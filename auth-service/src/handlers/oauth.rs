@@ -1,5 +1,5 @@
 // src/handlers/oauth.rs
-use actix_web::{get, HttpResponse, Responder};
+use actix_web::{get, web, HttpResponse, Responder};
 use crate::config::Config;
 
 #[get("/oauth/login")]

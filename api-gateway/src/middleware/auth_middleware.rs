@@ -1,16 +1,18 @@
 // src/middleware/auth_middleware.rs
-use actix_web::{dev::ServiceRequest, dev::ServiceResponse, Error};
-use actix_web::http::header::HeaderValue;
-use actix_web::dev::Transform;
-use futures::future::{ok, Ready};
+
+use actix_web::{
+    dev::{Service, ServiceRequest, ServiceResponse, Transform},
+    Error, HttpResponse,
+};
+use futures::future::{ok, Ready, LocalBoxFuture};
+use std::task::{Context, Poll};
 
 pub struct AuthMiddleware;
 
-impl<S> Transform<S> for AuthMiddleware
+impl<S> Transform<S, ServiceRequest> for AuthMiddleware
 where
-    S: 'static,
+    S: Service<ServiceRequest, Response = ServiceResponse, Error = Error> + 'static,
 {
-    type Request = ServiceRequest;
     type Response = ServiceResponse;
     type Error = Error;
     type InitError = ();
@@ -26,22 +28,33 @@ pub struct AuthMiddlewareService<S> {
     service: S,
 }
 
-impl<S> actix_service::Service for AuthMiddlewareService<S>
+impl<S> Service<ServiceRequest> for AuthMiddlewareService<S>
 where
-    S: 'static,
+    S: Service<ServiceRequest, Response = ServiceResponse, Error = Error> + 'static,
 {
-    type Request = ServiceRequest;
     type Response = ServiceResponse;
     type Error = Error;
-    type Future = BoxFuture<'static, Result<Self::Response, Self::Error>>;
+    type Future = LocalBoxFuture<'static, Result<Self::Response, Self::Error>>;
+
+    fn poll_ready(&self, _cx: &mut Context<'_>) -> Poll<Result<(), Self::Error>> {
+        Poll::Ready(Ok(()))
+    }
 
     fn call(&self, req: ServiceRequest) -> Self::Future {
-        if let Some(auth_header) = req.headers().get("Authorization") {
-            // Lógica de validación del token JWT
-        } else {
-            // Retornar error si no se proporciona el token
-        }
-        self.service.call(req)
+        // Clonamos los headers antes de mover `req`
+        let headers = req.headers().clone();
+        let fut = self.service.call(req);
+
+        Box::pin(async move {
+            if headers.get("Authorization").is_none() {
+                return Err(actix_web::error::InternalError::from_response(
+                    "",
+                    HttpResponse::Unauthorized().finish(),
+                )
+                .into());
+            }
+            fut.await
+        })
     }
 }
 

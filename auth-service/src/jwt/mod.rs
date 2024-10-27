@@ -1,7 +1,9 @@
 // src/jwt/mod.rs
+pub mod claims;
+
 use jsonwebtoken::{encode, decode, Header, Validation, EncodingKey, DecodingKey};
+use crate::jwt::claims::Claims;  // Ahora `Claims` estará disponible
 use serde::{Serialize, Deserialize};
-use crate::jwt::claims::Claims;
 
 pub fn create_token(username: &str, secret: &str) -> String {
     let claims = Claims {
@@ -17,5 +19,6 @@ pub fn validate_token(token: &str, secret: &str) -> bool {
 
 fn get_expiration() -> usize {
     // Implementación para obtener el tiempo de expiración del token
+    0 // Placeholder: ajusta este valor según tus necesidades
 }
 

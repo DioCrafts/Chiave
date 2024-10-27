@@ -8,16 +8,17 @@ mod config;
 mod routes;
 mod middleware;
 mod error;
+mod models;
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
     let config = load_config();
     HttpServer::new(move || {
         App::new()
-            .wrap(auth_middleware::AuthMiddleware::new()) // Middleware de autenticación
-            .service(auth::config_routes())
-            .service(users::config_routes())
-            .service(roles::config_routes())
+            .wrap(auth_middleware::AuthMiddleware)
+            .configure(auth::config_routes)
+            .configure(users::config_routes)
+            .configure(roles::config_routes)
     })
     .bind(config.server_addr)?
     .run()

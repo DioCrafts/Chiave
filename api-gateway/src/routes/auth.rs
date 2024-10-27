@@ -1,15 +1,14 @@
 // src/routes/auth.rs
 use actix_web::{post, web, HttpResponse, Responder};
+use crate::models::Credentials;
 
 #[post("/login")]
 async fn login(credentials: web::Json<Credentials>) -> impl Responder {
-    // Lógica para iniciar sesión y retornar un token
     HttpResponse::Ok().json("Token generated")
 }
 
 #[post("/refresh")]
 async fn refresh_token() -> impl Responder {
-    // Lógica para renovar el token
     HttpResponse::Ok().json("Token refreshed")
 }
 

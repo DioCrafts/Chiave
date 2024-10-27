@@ -1,5 +1,6 @@
 // src/handlers/login.rs
 use actix_web::{post, web, HttpResponse, Responder};
+use serde::Deserialize;
 use crate::jwt::create_token;
 use crate::config::Config;
 

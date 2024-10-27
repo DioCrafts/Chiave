@@ -1,6 +1,7 @@
 // src/handlers/set_config.rs
 use actix_web::{put, web, HttpResponse, Responder};
 use crate::config::Config;
+use serde::Deserialize;
 use std::sync::Mutex;
 
 #[derive(Deserialize)]
@@ -9,7 +10,7 @@ pub struct UpdateConfigRequest {
 }
 
 #[put("/config")]
-async fn set_config(
+pub async fn set_config(
     config: web::Data<Mutex<Config>>,
     new_config: web::Json<UpdateConfigRequest>,
 ) -> impl Responder {
